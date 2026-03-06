@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Usporedba čajeva</title>
+<style>
+:root {
+  --system-bg:      #F5F5F7;
+  --surface:        #FFFFFF;
+  --text-primary:   #1D1D1F;
+  --text-secondary: #86868B;
+  --text-tertiary:  #AEAEB2;
+  --line:           rgba(0,0,0,0.08);
+  --green:    #34C759; --green-bg: rgba(52,199,89,0.12);
+  --orange:   #FF9500; --orange-bg:rgba(255,149,0,0.12);
+  --red:      #FF3B30; --red-bg:  rgba(255,59,48,0.12);
+  --blue:     #007AFF; --blue-bg: rgba(0,122,255,0.12);
+  --gray-bg:  rgba(142,142,147,0.12);
+  --gray-dk:  #8E8E93;
+  --purple:   #AF52DE; --purple-bg: rgba(175,82,222,0.12);
+  --radius-xl: 20px; --radius-md: 12px; --radius-sm: 8px;
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03);
+  --glass: blur(20px) saturate(180%);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;background:var(--system-bg);color:var(--text-primary);-webkit-font-smoothing:antialiased;padding:40px 16px calc(100px + var(--safe-bottom));}
+.page{max-width:1440px;margin:0 auto;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;margin-bottom:20px;border-radius:999px;font-size:12px;font-weight:600;width:fit-content;margin-left:auto;margin-right:auto;transition:all .3s;}
+.status-bar.loading{background:var(--blue-bg);color:var(--blue);}
+.status-bar.online{background:var(--green-bg);color:var(--green);}
+.status-bar.offline{background:var(--orange-bg);color:var(--orange);}
+.status-bar.error{background:var(--red-bg);color:var(--red);}
+.status-bar.hidden{opacity:0;pointer-events:none;}
+.spin{display:inline-block;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:36px;padding:0 8px;}
+.header-eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+.header h1{font-size:clamp(32px,8vw,52px);font-weight:700;letter-spacing:-.02em;margin-bottom:12px;background:linear-gradient(135deg,#1D1D1F 0%,#48484A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;}
+.header-sub{font-size:clamp(14px,3vw,18px);color:var(--text-secondary);max-width:680px;margin:0 auto;line-height:1.5;}
+
+/* LEGEND */
+.legend-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:10px 18px;margin-bottom:28px;padding:12px 18px;background:rgba(255,255,255,.7);border-radius:999px;border:1px solid rgba(0,0,0,.06);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);width:fit-content;margin-left:auto;margin-right:auto;max-width:100%;}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-secondary);}
+.leg-item strong{color:var(--text-primary);font-weight:600;}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.leg-sep{width:1px;height:16px;background:rgba(0,0,0,.1);align-self:center;}
+
+/* OX TAGS */
+.ox-tag{display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid rgba(0,0,0,.06);line-height:1;white-space:nowrap;}
+.ox-cup{background:var(--gray-bg);color:var(--gray-dk);}
+.ox-raw{background:var(--orange-bg);color:var(--orange);}
+.ox-rng{background:var(--blue-bg);color:var(--blue);}
+.ox-na{background:rgba(0,0,0,.04);color:var(--text-secondary);}
+
+/* BADGES */
+.badge{display:inline-flex;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;}
+.b-safe{background:var(--green-bg);color:var(--green);}
+.b-caution{background:var(--orange-bg);color:var(--orange);}
+.b-warn{background:var(--red-bg);color:var(--red);}
+.b-alt{background:var(--blue-bg);color:var(--blue);}
+.b-custom{background:var(--purple-bg);color:var(--purple);}
+
+/* DESKTOP TABLE */
+.tbl-card{background:var(--surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-card);overflow:hidden;border:1px solid rgba(0,0,0,.04);display:none;}
+.tbl-scroll{overflow-x:auto;scrollbar-width:thin;scrollbar-color:#D1D1D6 transparent;}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:1080px;}
+th,td{padding:16px 18px;text-align:left;vertical-align:top;}
+th{font-weight:600;}
+thead th{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.9);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-secondary);border-bottom:1px solid var(--line);padding-top:16px;padding-bottom:12px;}
+tbody tr{transition:background .15s;}
+tbody tr:hover{background:#FAFAFC;}
+td,tbody th.rowhd{border-bottom:1px solid var(--line);}
+tbody tr:last-child td,tbody tr:last-child th.rowhd{border-bottom:none;}
+tr.sec td{background:#F9F9F9;font-size:11px;font-weight:800;color:var(--text-secondary);letter-spacing:.02em;text-transform:uppercase;padding:9px 18px;border-bottom:1px solid var(--line);border-top:1px solid var(--line);}
+tr.sec:first-child td{border-top:none;}
+.pl28{padding-left:28px!important;}
+.tea-wrap{display:flex;align-items:center;gap:10px;}
+.tea-icon{font-size:22px;background:var(--system-bg);width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;flex-shrink:0;}
+.tea-info{display:flex;flex-direction:column;}
+.tea-name{font-size:14px;font-weight:700;color:var(--text-primary);}
+.tea-latin{font-size:11px;color:var(--text-secondary);font-style:italic;margin-top:1px;}
+tbody th.rowhd{text-align:left;font-weight:400;padding:16px 18px;vertical-align:middle;}
+.ox-line{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;}
+.ox-val{font-size:13px;font-weight:600;font-feature-settings:"tnum";}
+.ox-sub{font-size:10px;color:var(--text-secondary);display:block;margin-top:3px;}
+.hind{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;}
+.hind.up{color:var(--red);}.hind.dn{color:var(--blue);}.hind.nu{color:var(--text-secondary);opacity:.75;}
+.h-src{display:inline-block;font-size:9px;padding:2px 5px;border-radius:5px;background:var(--system-bg);color:var(--text-secondary);margin-top:4px;font-weight:600;}
+.dig-wrap{display:flex;flex-direction:column;gap:4px;}
+.digs{display:flex;gap:3px;}
+.d{width:7px;height:7px;border-radius:50%;background:#E5E5EA;}
+.d.on{background:var(--green);}
+.dig-score{font-size:10px;font-weight:700;color:var(--text-secondary);}
+.ref-wrap{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;}
+.r-good{color:var(--text-primary);}.r-bad{color:var(--red);}.r-mid{color:var(--orange);}
+.cmt{font-size:11px;color:var(--text-secondary);line-height:1.6;max-width:260px;}
+.cmt strong{color:var(--text-primary);font-weight:700;}
+
+/* MOBILE CARDS */
+.cards-view{display:block;}
+.section-header{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin:28px 0 10px;padding:0 2px;}
+.section-header:first-child{margin-top:0;}
+.tea-card{background:var(--surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-card);border:1px solid rgba(0,0,0,.04);margin-bottom:12px;overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 11px;border-bottom:1px solid var(--line);gap:10px;}
+.card-header-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.card-icon{font-size:26px;background:var(--system-bg);width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:11px;flex-shrink:0;}
+.card-title{min-width:0;}
+.card-name{font-size:15px;font-weight:700;color:var(--text-primary);}
+.card-latin{font-size:11px;color:var(--text-secondary);font-style:italic;margin-top:1px;}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.card-cell{padding:11px 14px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);}
+.card-cell:nth-child(even){border-right:none;}
+.card-cell:nth-last-child(-n+2){border-bottom:none;}
+.card-label{font-size:9px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.card-val{font-size:12px;font-weight:600;color:var(--text-primary);}
+.card-comment{padding:12px 14px;font-size:12px;color:var(--text-secondary);line-height:1.6;border-top:1px solid var(--line);background:#FAFAFA;}
+.card-comment strong{color:var(--text-primary);}
+.card-comment.hidden{display:none;}
+.card-expand-btn{width:100%;padding:9px 14px;background:none;border:none;border-top:1px solid var(--line);font-size:11px;font-weight:700;color:var(--blue);cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px;-webkit-tap-highlight-color:transparent;font-family:inherit;}
+.chevron{display:inline-block;transition:transform .2s;}
+.chevron.open{transform:rotate(180deg);}
+.dig-card{display:flex;align-items:center;gap:5px;}
+
+/* SKELETON */
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;height:14px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-card{background:var(--surface);border-radius:var(--radius-xl);padding:16px;margin-bottom:12px;border:1px solid rgba(0,0,0,.04);}
+.skeleton-row{display:flex;gap:12px;align-items:center;margin-bottom:12px;}
+.skeleton-circle{width:46px;height:46px;border-radius:11px;flex-shrink:0;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+
+/* FOOTER */
+.footer-notes{margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+.note-card{background:var(--surface);padding:16px;border-radius:var(--radius-md);border:1px solid var(--line);}
+.note-title{font-size:10px;text-transform:uppercase;color:var(--text-secondary);font-weight:800;margin-bottom:7px;display:block;letter-spacing:.04em;}
+.note-text{font-size:12px;color:var(--text-secondary);line-height:1.6;}
+.note-inline-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+
+/* FAB */
+.fab-row{position:fixed;bottom:calc(24px + var(--safe-bottom));right:20px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;z-index:500;}
+.fab{width:56px;height:56px;border-radius:50%;background:var(--blue);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(0,122,255,.4),0 1px 6px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;transition:transform .15s;-webkit-tap-highlight-color:transparent;}
+.fab:active{transform:scale(.93);}
+.fab-sm{width:44px;height:44px;font-size:19px;background:var(--surface);color:var(--text-primary);box-shadow:0 2px 12px rgba(0,0,0,.12);transition:transform .6s;}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-backdrop.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding:0 0 calc(24px + var(--safe-bottom));transform:translateY(30px);transition:transform .3s cubic-bezier(.34,1.2,.64,1);-webkit-overflow-scrolling:touch;}
+.modal-backdrop.open .modal{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:rgba(0,0,0,.15);margin:12px auto 0;}
+.modal-header{padding:14px 20px 0;display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:17px;font-weight:700;}
+.modal-close{background:none;border:none;font-size:20px;color:var(--text-secondary);cursor:pointer;padding:4px;line-height:1;-webkit-tap-highlight-color:transparent;}
+.modal-body{padding:14px 20px 0;}
+.form-row{margin-bottom:14px;}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--radius-md);font-family:inherit;font-size:15px;color:var(--text-primary);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none;}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,122,255,.1);}
+.form-row textarea{resize:vertical;min-height:68px;line-height:1.5;}
+.form-row select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dig-slider{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#E5E5EA;outline:none;cursor:pointer;}
+.dig-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--blue);box-shadow:0 2px 8px rgba(0,122,255,.3);}
+.dig-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--blue);border:none;}
+.btn-save{width:calc(100% - 40px);margin:18px 20px 0;background:var(--blue);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;transition:transform .12s,opacity .12s;-webkit-tap-highlight-color:transparent;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-save:active{transform:scale(.98);opacity:.9;}
+.btn-save:disabled{opacity:.5;pointer-events:none;}
+.btn-delete-tea{background:none;border:none;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;padding:3px 7px;border-radius:6px;-webkit-tap-highlight-color:transparent;font-family:inherit;}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(92px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(16px);background:#1D1D1F;color:#fff;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:all .25s;z-index:2000;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* DESKTOP */
+@media(min-width:768px){
+  body{padding:56px 24px 120px;}
+  .tbl-card{display:block;}
+  .cards-view{display:none;}
+  .fab{width:52px;height:52px;font-size:22px;}
+  .modal-backdrop{align-items:center;}
+  .modal{border-radius:24px;max-height:85vh;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="status-bar loading" id="statusBar">
+    <span class="spin">⟳</span> Učitavam čajeve...
+  </div>
+
+  <header class="header">
+    <p class="header-eyebrow">Zdravlje &amp; prehrana</p>
+    <h1>Usporedba čajeva</h1>
+    <p class="header-sub">Znanstveni pristup utjecaju na hormone, oksalate i probavni sustav — pregledno na 1 mjestu.</p>
+  </header>
+
+  <div class="legend-bar" role="note">
+    <div class="leg-item"><span class="leg-dot" style="background:var(--green)"></span><span>Preporučeno</span></div>
+    <div class="leg-item"><span class="leg-dot" style="background:var(--orange)"></span><span>S oprezom</span></div>
+    <div class="leg-item"><span class="leg-dot" style="background:var(--red)"></span><span>Ograniči</span></div>
+    <span class="leg-sep"></span>
+    <div class="leg-item"><strong>Dokaz:</strong>&nbsp;H · Ž · I · EMA · ?</div>
+    <span class="leg-sep"></span>
+    <div class="leg-item">
+      <strong>Oksalat:</strong>
+      <span class="ox-tag ox-cup">ŠALICA</span>
+      <span class="ox-tag ox-raw">SIROVINA</span>
+      <span class="ox-tag ox-rng">RASPON</span>
+    </div>
+  </div>
+
+  <div class="tbl-card" id="desktopTable">
+    <div class="tbl-scroll">
+      <table>
+        <caption class="sr-only">Usporedba čajeva</caption>
+        <thead>
+          <tr>
+            <th class="pl28">Čaj</th>
+            <th>Preporuka</th>
+            <th>Oksalati</th>
+            <th>Testosteron</th>
+            <th>Estrogen</th>
+            <th>Probava</th>
+            <th>Refluks</th>
+            <th style="width:240px">Klinički komentar</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-secondary)">
+            <div class="skeleton" style="width:200px;margin:0 auto 10px"></div>
+            <div class="skeleton" style="width:140px;margin:0 auto"></div>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cards-view" id="cardsView">
+    <div class="skeleton-card"><div class="skeleton-row"><div class="skeleton-circle"></div><div style="flex:1"><div class="skeleton" style="margin-bottom:8px"></div><div class="skeleton" style="width:60%"></div></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-row"><div class="skeleton-circle"></div><div style="flex:1"><div class="skeleton" style="margin-bottom:8px"></div><div class="skeleton" style="width:60%"></div></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-row"><div class="skeleton-circle"></div><div style="flex:1"><div class="skeleton" style="margin-bottom:8px"></div><div class="skeleton" style="width:60%"></div></div></div></div>
+  </div>
+
+  <div class="footer-notes">
+    <div class="note-card">
+      <span class="note-title">Oksalati</span>
+      <p class="note-text"><strong>ŠALICA</strong> = izmjereno u napitku, <strong>SIROVINA</strong> = oksalat u suhom bilju, <strong>RASPON</strong> = više izvora.</p>
+      <div class="note-inline-tags"><span class="ox-tag ox-cup">ŠALICA</span><span class="ox-tag ox-raw">SIROVINA</span><span class="ox-tag ox-rng">RASPON</span></div>
+    </div>
+    <div class="note-card">
+      <span class="note-title">Probava (1–5)</span>
+      <p class="note-text">Ocjena 5 = najjači klinički signal (EMA + kvalitetne studije na ljudima).</p>
+    </div>
+    <div class="note-card">
+      <span class="note-title">Sinkronizacija</span>
+      <p class="note-text">Podaci žive u Google Sheetsima. Svaki uređaj vidi iste čajeve u realnom vremenu.</p>
+    </div>
+  </div>
+</div>
+
+<div class="fab-row">
+  <button class="fab fab-sm" id="syncBtn" onclick="syncNow()" title="Osvježi">↻</button>
+  <button class="fab" onclick="openModal()" title="Dodaj čaj">＋</button>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">Dodaj novi čaj</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-2col">
+        <div class="form-row"><label>Emoji ikona</label><input type="text" id="f_icon" placeholder="🌿" maxlength="4" value="🌿"></div>
+        <div class="form-row"><label>Kategorija</label>
+          <select id="f_section">
+            <option value="recommended">⭐ Preporučeno</option>
+            <option value="caution">⚠️ S oprezom</option>
+            <option value="alternative">🌱 Alternativa</option>
+            <option value="custom">✏️ Moji čajevi</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><label>Naziv čaja *</label><input type="text" id="f_name" placeholder="npr. Hibiskus"></div>
+      <div class="form-row"><label>Latinsko ime</label><input type="text" id="f_latin" placeholder="npr. Hibiscus sabdariffa"></div>
+      <div class="form-row"><label>Preporuka</label>
+        <select id="f_badge">
+          <option value="b-safe">✅ Preporučeno</option>
+          <option value="b-caution">⚠️ S oprezom</option>
+          <option value="b-warn">🔴 Ograniči</option>
+          <option value="b-alt">🔵 Alternativa</option>
+          <option value="b-custom">✏️ Vlastita kategorija</option>
+        </select>
+      </div>
+      <div class="form-2col">
+        <div class="form-row"><label>Oksalati</label><input type="text" id="f_oxVal" placeholder="npr. ≈ 5 mg"></div>
+        <div class="form-row"><label>Tip mjerenja</label>
+          <select id="f_oxType">
+            <option value="cup">ŠALICA</option>
+            <option value="raw">SIROVINA</option>
+            <option value="rng">RASPON</option>
+            <option value="na">N/A</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><label>Napomena oksalati</label><input type="text" id="f_oxSub" placeholder="npr. varira po brendu"></div>
+      <div class="form-2col">
+        <div class="form-row"><label>Testosteron</label>
+          <select id="f_testo">
+            <option value="nu">Neutralno</option>
+            <option value="up">▲ Povisuje</option>
+            <option value="dn">▼ Snižava</option>
+            <option value="up?">▲ Povisuje?</option>
+            <option value="dn?">▼ Snižava?</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Izvor T</label><input type="text" id="f_testoSrc" placeholder="H / Ž / ?"></div>
+      </div>
+      <div class="form-2col">
+        <div class="form-row"><label>Estrogen</label>
+          <select id="f_estro">
+            <option value="nu">Neutralno</option>
+            <option value="up">▲ Povisuje</option>
+            <option value="dn">▼ Snižava</option>
+            <option value="up?">▲ Povisuje?</option>
+            <option value="dn?">▼ Snižava?</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Izvor E</label><input type="text" id="f_estroSrc" placeholder="EMA / I"></div>
+      </div>
+      <div class="form-row">
+        <label>Probava: <span id="digVal">3</span> / 5</label>
+        <input type="range" id="f_dig" min="1" max="5" value="3" class="dig-slider" oninput="document.getElementById('digVal').textContent=this.value">
+      </div>
+      <div class="form-row"><label>Refluks</label>
+        <select id="f_ref">
+          <option value="good">✓ Sigurno</option>
+          <option value="mid">~ Ponekad</option>
+          <option value="bad_ref">⚠️ Oprez</option>
+          <option value="bad_caf">⚠️ Kofein</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Klinički komentar</label><textarea id="f_comment" placeholder="Kratki opis, napomene..."></textarea></div>
+    </div>
+    <button class="btn-save" id="saveBtn" onclick="saveTea()">
+      <span id="saveBtnText">Spremi čaj</span>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// ⚙️  KONFIGURACIJA — PROMIJENI OVO NAKON DEPLOYMENTA
+// ═══════════════════════════════════════════════════════════════
+const CONFIG = {
+  SCRIPT_URL: 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbycahxjTP0dxUn_8B_76yc8eePtpYuhPdtj0numcoGRtMSMWLBwT0Yx-faS-fK_GFET/exec',
+  SECRET_KEY: 'string123',
+  CACHE_TTL:  5 * 60 * 1000   // 5 minuta cache TTL
+};
+// ═══════════════════════════════════════════════════════════════
+
+const BUILT_IN_TEAS = [
+  { id:'ginger', icon:'🫚', name:'Đumbir', latin:'Zingiber officinale', section:'recommended', badge:'b-safe', badgeLabel:'Preporučeno', oxValue:'≈ 3 mg', oxType:'cup', oxSub:'', testo:{type:'nu',label:'Neutralno',src:'Napomena: suplementi jači'}, estro:{type:'nu',label:'Neutralno',src:''}, digestion:5, refluks:{cls:'r-mid',label:'⚠️ Osjetljivi'}, comment:'<strong>Zlatni standard</strong> za mučninu (EMA). Hormonski signali iz studija na suplementima se ne preslikavaju na čaj.' },
+  { id:'chamomile', icon:'🌼', name:'Kamilica', latin:'Matricaria recutita', section:'recommended', badge:'b-safe', badgeLabel:'Preporučeno', oxValue:'0,4 – 0,7 mg', oxType:'cup', oxSub:'', testo:{type:'nu',label:'Neutralno',src:''}, estro:{type:'nu',label:'Neutralno',src:'In vitro signal (I) / ?'}, digestion:3, refluks:{cls:'r-good',label:'✓ Sigurno'}, comment:'Apigenin se veže na receptore <em>in vitro</em>, ali nema dokaza o porastu estradiola u krvi kod ljudi. Sigurno za svakodnevnu upotrebu.' },
+  { id:'melissa', icon:'🍋', name:'Matičnjak', latin:'Melissa officinalis', section:'recommended', badge:'b-safe', badgeLabel:'Preporučeno', oxValue:'≈ 5 mg', oxType:'cup', oxSub:'', testo:{type:'nu',label:'Neutralno',src:''}, estro:{type:'nu',label:'Neutralno',src:''}, digestion:3, refluks:{cls:'r-good',label:'✓ Sigurno'}, comment:'<strong>Najsigurniji "balans"</strong> čaj. Odličan za stres i blage želučane tegobe bez hormonskog rizika.' },
+  { id:'mint', icon:'🌿', name:'Menta', latin:'Mentha × piperita', section:'recommended', badge:'b-caution', badgeLabel:'S oprezom', oxValue:'0,41 mg', oxType:'cup', oxSub:'', testo:{type:'dn',label:'▼ Snižava?',src:'Životinje (Ž) / ?'}, estro:{type:'nu',label:'Neutralno',src:''}, digestion:4, refluks:{cls:'r-bad',label:'⚠️ Oprez'}, comment:'Može opustiti sfinkter i pogoršati <strong>refluks</strong>. Pad testosterona zabilježen samo kod štakora, ne kod ljudi.' },
+  { id:'fennel', icon:'🌾', name:'Komorač', latin:'Foeniculum vulgare', section:'caution', badge:'b-warn', badgeLabel:'Ograniči', oxValue:'≤ 23 mg', oxType:'raw', oxSub:'1 žličica sjemenki (gornja granica)', testo:{type:'dn',label:'▼ Snižava?',src:''}, estro:{type:'up',label:'▲ Povisuje',src:'Fitoestrogen (EMA / I / Ž)'}, digestion:4, refluks:{cls:'r-mid',label:'~ Ponekad'}, comment:'Sadrži anethol (fitoestrogen). <strong>Crveni alarm</strong> ako aktivno izbjegavaš estrogenične spojeve.' },
+  { id:'greentea', icon:'🍵', name:'Zeleni čaj', latin:'Camellia sinensis', section:'caution', badge:'b-caution', badgeLabel:'S oprezom', oxValue:'0,3 – 1,7 mg', oxType:'rng', oxSub:'varira po brendu/berbi', testo:{type:'nu',label:'Neutralno',src:''}, estro:{type:'nu',label:'Neutralno',src:''}, digestion:2, refluks:{cls:'r-bad',label:'⚠️ Kofein'}, comment:'Kofein i tanini mogu iritirati želudac. Oksalati nepredvidivi ovisno o berbi.' },
+  { id:'sage', icon:'🌸', name:'Kadulja', latin:'Salvia officinalis', section:'caution', badge:'b-caution', badgeLabel:'S oprezom', oxValue:'≈ 1 mg', oxType:'cup', oxSub:'', testo:{type:'nu',label:'Neutralno',src:''}, estro:{type:'up',label:'▲ Povisuje?',src:'Samo ekstrakti / ?'}, digestion:2, refluks:{cls:'r-mid',label:'~ Ponekad'}, comment:'Estrogenična svojstva vezana uz ekstrakte, rijetko uz čaj. Rotiraj s drugim čajevima.' },
+  { id:'nettle', icon:'🌱', name:'Kopriva (list)', latin:'Urtica dioica', section:'caution', badge:'b-caution', badgeLabel:'S oprezom', oxValue:'N/A', oxType:'na', oxSub:'neujednačeni podaci', testo:{type:'nu',label:'Neutralno',src:'List ≠ korijen'}, estro:{type:'nu',label:'Neutralno',src:''}, digestion:1, refluks:{cls:'r-good',label:'✓ Sigurno'}, comment:'Priče o testosteronu dolaze od <strong>korijena</strong> (SHBG interakcija). Čaj od lista je primarno diuretik.' },
+  { id:'rooibos', icon:'🔴', name:'Rooibos', latin:'Aspalathus linearis', section:'alternative', badge:'b-alt', badgeLabel:'Alternativa', oxValue:'0,9 – 1,6 mg', oxType:'cup', oxSub:'', testo:{type:'nu',label:'Neutralno',src:''}, estro:{type:'nu',label:'Neutralno',src:''}, digestion:2, refluks:{cls:'r-good',label:'✓ Sigurno'}, comment:'<strong>Idealan "bulk" čaj.</strong> Nema kofeina, nizak oksalat, nema hormonskog utjecaja.' },
+  { id:'lemongrass', icon:'🍋', name:'Limunska trava', latin:'Cymbopogon citratus', section:'alternative', badge:'b-alt', badgeLabel:'Alternativa', oxValue:'0,40 mg', oxType:'cup', oxSub:'', testo:{type:'nu',label:'Neutralno',src:''}, estro:{type:'nu',label:'Neutralno',src:''}, digestion:3, refluks:{cls:'r-good',label:'✓ Sigurno'}, comment:'Osvježavajuća alternativa s vrlo niskim razinama oksalata. Sigurno za rotaciju.' }
+];
+
+const SECTIONS = [
+  { id:'recommended', label:'⭐ Preporučeno — najniži rizik u praksi' },
+  { id:'caution',     label:'⚠️ S oprezom — ograniči ili rotiraj' },
+  { id:'alternative', label:'🌱 Alternative — "bulk" kandidati' },
+  { id:'custom',      label:'✏️ Moji čajevi' }
+];
+const BADGE_LABELS = {'b-safe':'Preporučeno','b-caution':'S oprezom','b-warn':'Ograniči','b-alt':'Alternativa','b-custom':'Vlastito'};
+const HIND_LABELS  = {'nu':'Neutralno','up':'▲ Povisuje','dn':'▼ Snižava','up?':'▲ Povisuje?','dn?':'▼ Snižava?'};
+const HIND_CLASS   = {'nu':'nu','up':'up','dn':'dn','up?':'up','dn?':'dn'};
+const REF_OPTIONS  = {'good':{cls:'r-good',label:'✓ Sigurno'},'mid':{cls:'r-mid',label:'~ Ponekad'},'bad_ref':{cls:'r-bad',label:'⚠️ Oprez'},'bad_caf':{cls:'r-bad',label:'⚠️ Kofein'}};
+const OX_CLASS = {cup:'ox-cup',raw:'ox-raw',rng:'ox-rng',na:'ox-na'};
+const OX_LABEL = {cup:'ŠALICA',raw:'SIROVINA',rng:'RASPON',na:'N/A'};
+
+let customTeas = [];
+
+// CACHE
+function cacheSet(d){ try{ localStorage.setItem('cajevi_cache',JSON.stringify({ts:Date.now(),data:d})); }catch(e){} }
+function cacheGet(){ try{ const r=localStorage.getItem('cajevi_cache'); if(!r) return null; const o=JSON.parse(r); return (Date.now()-o.ts>CONFIG.CACHE_TTL)?null:o.data; }catch(e){ return null; } }
+
+// API
+async function fetchTeas(){
+  const r = await fetch(CONFIG.SCRIPT_URL+'?v='+Date.now(),{method:'GET',redirect:'follow'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error||'API greška');
+  return j.teas||[];
+}
+async function postAction(action,payload){
+  const r = await fetch(CONFIG.SCRIPT_URL,{
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify({key:CONFIG.SECRET_KEY,action,...payload})
+  });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error||'API greška');
+  return j;
+}
+
+// SYNC
+async function syncNow(silent=false){
+  setStatus('loading','⟳ Sinkroniziram...');
+  const btn=document.getElementById('syncBtn');
+  btn.style.transform='rotate(360deg)';
+  setTimeout(()=>{ btn.style.transform=''; },650);
+  try{
+    customTeas = await fetchTeas();
+    cacheSet(customTeas);
+    setStatus('online',`✓ Sinkronizirano — ${customTeas.length} prilag. čaj${customTeas.length===1?'':'eva'}`);
+    setTimeout(()=>setStatus('hidden'),3000);
+    renderAll();
+    if(!silent) showToast('✅ Podaci osvježeni');
+  } catch(err){
+    const cached = cacheGet();
+    if(cached){ customTeas=cached; setStatus('offline','📶 Offline — prikazujem cache'); renderAll(); if(!silent) showToast('⚠️ Offline — cached podaci'); }
+    else{ setStatus('error','✗ Greška: '+err.message); customTeas=[]; renderAll(); if(!silent) showToast('✗ '+err.message); }
+  }
+}
+function setStatus(type,text){
+  const b=document.getElementById('statusBar');
+  b.className='status-bar '+type;
+  if(text) b.innerHTML = type==='loading'?`<span class="spin">⟳</span> ${text}`:text;
+}
+
+// HELPERS
+function oxTagHTML(t){ return `<span class="ox-tag ${OX_CLASS[t]||'ox-na'}">${OX_LABEL[t]||'N/A'}</span>`; }
+function hindHTML(h){ const c=HIND_CLASS[h.type]||'nu'; return `<div class="hind ${c}">${h.label||'Neutralno'}</div>${h.src?`<span class="h-src">${h.src}</span>`:''}`; }
+function digHTML(n){ return `<div class="dig-wrap"><div class="digs">${[1,2,3,4,5].map(i=>`<div class="d${i<=n?' on':''}"></div>`).join('')}</div><span class="dig-score">${n} / 5</span></div>`; }
+function digCardHTML(n){ return `<div class="dig-card"><div class="digs">${[1,2,3,4,5].map(i=>`<div class="d${i<=n?' on':''}"></div>`).join('')}</div><span class="dig-score">${n}/5</span></div>`; }
+function refHTML(r){ return `<div class="ref-wrap ${r.cls}">${r.label}</div>`; }
+
+// RENDER TABLE
+function renderTable(){
+  const tbody=document.getElementById('tableBody'); if(!tbody) return;
+  const all=[...BUILT_IN_TEAS,...customTeas]; let html='';
+  SECTIONS.forEach(sec=>{
+    const list=all.filter(t=>t.section===sec.id); if(!list.length) return;
+    html+=`<tr class="sec"><td colspan="8"><span>${sec.label}</span></td></tr>`;
+    list.forEach(tea=>{
+      const del=tea.custom?`<button class="btn-delete-tea" onclick="deleteTea('${tea.id}')">✕</button>`:'';
+      html+=`<tr>
+        <th class="rowhd pl28"><div class="tea-wrap"><span class="tea-icon">${tea.icon}</span><div class="tea-info"><span class="tea-name">${tea.name} ${del}</span><span class="tea-latin">${tea.latin||''}</span></div></div></th>
+        <td><span class="badge ${tea.badge}">${tea.badgeLabel}</span></td>
+        <td><div class="ox-line"><span class="ox-val">${tea.oxValue}</span>${oxTagHTML(tea.oxType)}</div>${tea.oxSub?`<span class="ox-sub">${tea.oxSub}</span>`:''}</td>
+        <td>${hindHTML(tea.testo)}</td>
+        <td>${hindHTML(tea.estro)}</td>
+        <td>${digHTML(tea.digestion)}</td>
+        <td>${refHTML(tea.refluks)}</td>
+        <td class="cmt">${tea.comment}</td>
+      </tr>`;
+    });
+  });
+  tbody.innerHTML=html||'<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-secondary)">Nema podataka</td></tr>';
+}
+
+// RENDER CARDS
+function renderCards(){
+  const c=document.getElementById('cardsView'); if(!c) return;
+  const all=[...BUILT_IN_TEAS,...customTeas]; let html='';
+  SECTIONS.forEach(sec=>{
+    const list=all.filter(t=>t.section===sec.id); if(!list.length) return;
+    html+=`<div class="section-header">${sec.label}</div>`;
+    list.forEach(tea=>{
+      const uid=`card_${tea.id}`;
+      const del=tea.custom?`<div style="margin-top:8px"><button class="btn-delete-tea" onclick="deleteTea('${tea.id}')">✕ Obriši čaj</button></div>`:'';
+      html+=`<div class="tea-card" id="${uid}">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="card-icon">${tea.icon}</span>
+            <div class="card-title"><div class="card-name">${tea.name}</div><div class="card-latin">${tea.latin||''}</div></div>
+          </div>
+          <span class="badge ${tea.badge}">${tea.badgeLabel}</span>
+        </div>
+        <div class="card-grid">
+          <div class="card-cell"><div class="card-label">Oksalati</div><div class="card-val"><span style="font-weight:600">${tea.oxValue}</span> ${oxTagHTML(tea.oxType)}${tea.oxSub?`<div style="font-size:10px;color:var(--text-secondary);margin-top:2px">${tea.oxSub}</div>`:''}</div></div>
+          <div class="card-cell"><div class="card-label">Probava</div><div class="card-val">${digCardHTML(tea.digestion)}</div></div>
+          <div class="card-cell"><div class="card-label">Testosteron</div><div class="card-val">${hindHTML(tea.testo)}</div></div>
+          <div class="card-cell"><div class="card-label">Estrogen</div><div class="card-val">${hindHTML(tea.estro)}</div></div>
+          <div class="card-cell" style="grid-column:span 2;border-bottom:none"><div class="card-label">Refluks</div><div class="card-val">${refHTML(tea.refluks)}</div></div>
+        </div>
+        <button class="card-expand-btn" onclick="toggleComment('${uid}_cmt',this)">Klinički komentar <span class="chevron">▾</span></button>
+        <div class="card-comment hidden" id="${uid}_cmt">${tea.comment}${del}</div>
+      </div>`;
+    });
+  });
+  c.innerHTML=html||'<div style="text-align:center;padding:40px;color:var(--text-secondary)">Nema podataka</div>';
+}
+
+function toggleComment(id,btn){ const el=document.getElementById(id); if(!el) return; const h=el.classList.toggle('hidden'); const ch=btn.querySelector('.chevron'); if(ch) ch.classList.toggle('open',!h); }
+function renderAll(){ renderTable(); renderCards(); }
+
+// MODAL
+function openModal(){ document.getElementById('modalBackdrop').classList.add('open'); document.body.style.overflow='hidden'; setTimeout(()=>document.getElementById('f_name').focus(),350); }
+function closeModal(){ document.getElementById('modalBackdrop').classList.remove('open'); document.body.style.overflow=''; }
+function closeModalOnBackdrop(e){ if(e.target===document.getElementById('modalBackdrop')) closeModal(); }
+
+// SAVE
+async function saveTea(){
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){ showToast('⚠️ Unesi naziv čaja'); return; }
+  const badge=document.getElementById('f_badge').value;
+  const refKey=document.getElementById('f_ref').value;
+  const tt=document.getElementById('f_testo').value;
+  const et=document.getElementById('f_estro').value;
+  const tea={
+    id:'custom_'+Date.now(), icon:document.getElementById('f_icon').value||'🌿', name,
+    latin:document.getElementById('f_latin').value.trim(),
+    section:document.getElementById('f_section').value,
+    badge, badgeLabel:BADGE_LABELS[badge]||'Vlastito',
+    oxValue:document.getElementById('f_oxVal').value.trim()||'N/A',
+    oxType:document.getElementById('f_oxType').value,
+    oxSub:document.getElementById('f_oxSub').value.trim(),
+    testo:{type:tt,label:HIND_LABELS[tt]||tt,src:document.getElementById('f_testoSrc').value.trim()},
+    estro:{type:et,label:HIND_LABELS[et]||et,src:document.getElementById('f_estroSrc').value.trim()},
+    digestion:parseInt(document.getElementById('f_dig').value),
+    refluks:REF_OPTIONS[refKey]||REF_OPTIONS['mid'],
+    comment:document.getElementById('f_comment').value.trim()||'—',
+    custom:true
+  };
+  const btn=document.getElementById('saveBtn'); const txt=document.getElementById('saveBtnText');
+  btn.disabled=true; txt.innerHTML='<span class="spin">⟳</span> Spremate...';
+  try{
+    await postAction('add',{tea});
+    customTeas.push(tea); cacheSet(customTeas);
+    ['f_name','f_latin','f_oxVal','f_oxSub','f_testoSrc','f_estroSrc','f_comment'].forEach(id=>{ document.getElementById(id).value=''; });
+    document.getElementById('f_icon').value='🌿';
+    document.getElementById('f_dig').value=3;
+    document.getElementById('digVal').textContent='3';
+    closeModal(); renderAll(); showToast('✅ Čaj dodan u Sheets!');
+  } catch(err){ showToast('✗ Greška: '+err.message); }
+  finally{ btn.disabled=false; txt.textContent='Spremi čaj'; }
+}
+
+// DELETE
+async function deleteTea(id){
+  if(!confirm('Obrisati ovaj čaj?')) return;
+  try{
+    await postAction('delete',{id});
+    customTeas=customTeas.filter(t=>t.id!==id); cacheSet(customTeas); renderAll(); showToast('🗑️ Čaj obrisan');
+  } catch(err){ showToast('✗ Greška: '+err.message); }
+}
+
+// TOAST
+let _tt;
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),2600); }
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(CONFIG.SCRIPT_URL.includes('TVOJ_DEPLOYMENT_ID')){
+    setStatus('error','⚙️ Postavi SCRIPT_URL u CONFIG sekciji HTML-a');
+    customTeas=[]; renderAll(); return;
+  }
+  syncNow(true);
+});
+</script>
+</body>
+</html>
