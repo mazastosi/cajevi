@@ -572,7 +572,7 @@ function showToast(msg){ const t=document.getElementById('toast'); t.textContent
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 document.addEventListener('DOMContentLoaded',()=>{
-  if(CONFIG.SCRIPT_URL.includes('AKfycbycahxjTP0dxUn_8B_76yc8eePtpYuhPdtj0numcoGRtMSMWLBwT0Yx-faS-fK_GFET')){
+  if(CONFIG.SCRIPT_URL.includes('TVOJ_DEPLOYMENT_ID')){
     setStatus('error','⚙️ Postavi SCRIPT_URL u CONFIG sekciji HTML-a');
     customTeas=[]; renderAll(); return;
   }
