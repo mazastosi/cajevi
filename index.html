@@ -364,7 +364,7 @@ tbody th.rowhd{text-align:left;font-weight:400;padding:16px 18px;vertical-align:
 // ⚙️  KONFIGURACIJA — PROMIJENI OVO NAKON DEPLOYMENTA
 // ═══════════════════════════════════════════════════════════════
 const CONFIG = {
-  SCRIPT_URL: 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbycahxjTP0dxUn_8B_76yc8eePtpYuhPdtj0numcoGRtMSMWLBwT0Yx-faS-fK_GFET/exec',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbycahxjTP0dxUn_8B_76yc8eePtpYuhPdtj0numcoGRtMSMWLBwT0Yx-faS-fK_GFET/exec',
   SECRET_KEY: 'string123',
   CACHE_TTL:  5 * 60 * 1000   // 5 minuta cache TTL
 };
@@ -572,7 +572,7 @@ function showToast(msg){ const t=document.getElementById('toast'); t.textContent
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 document.addEventListener('DOMContentLoaded',()=>{
-  if(CONFIG.SCRIPT_URL.includes('TVOJ_DEPLOYMENT_ID')){
+  if(CONFIG.SCRIPT_URL.includes('AKfycbycahxjTP0dxUn_8B_76yc8eePtpYuhPdtj0numcoGRtMSMWLBwT0Yx-faS-fK_GFET')){
     setStatus('error','⚙️ Postavi SCRIPT_URL u CONFIG sekciji HTML-a');
     customTeas=[]; renderAll(); return;
   }
